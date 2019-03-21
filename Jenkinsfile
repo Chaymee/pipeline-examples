@@ -16,7 +16,6 @@ pipeline {
     stage('Build') {
       steps {
         echo 'we are building here'
-        echo mytime
       }
     }
 
