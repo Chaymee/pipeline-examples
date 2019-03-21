@@ -19,28 +19,8 @@ pipeline {
 
   stages {
     stage('Build') {
-      agent {
-        docker {
-          /*
-           * Reuse the workspace on the agent defined at top-level of Pipeline but run inside a container.
-           * In this case we are running a container with maven so we don't have to install specific versions
-           * of maven directly on the agent
-           */
-          reuseNode true
-          image 'maven:3.5.0-jdk-8'
-        }
-      }
       steps {
-        // using the Pipeline Maven plugin we can set maven configuration settings, publish test results, and annotate the Jenkins console
-        withMaven(options: [findbugsPublisher(), junitPublisher(ignoreAttachments: false)]) {
-          sh 'mvn clean findbugs:findbugs package'
-        }
-      }
-      post {
-        success {
-          // we only worry about archiving the jar file if the build steps are successful
-          archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
-        }
+        echo 'we are building here'
       }
     }
 
@@ -54,19 +34,8 @@ pipeline {
           }
         }
         stage('Sonar Scan') {
-          agent {
-            docker {
-              // we can use the same image and workspace as we did previously
-              reuseNode true
-              image 'maven:3.5.0-jdk-8'
-            }
-          }
-          environment {
-            //use 'sonar' credentials scoped only to this stage
-            SONAR = credentials('sonar')
-          }
           steps {
-            sh 'mvn sonar:sonar -Dsonar.login=$SONAR_PSW'
+            echo 'mvn sonar:sonar -Dsonar.login=$SONAR_PSW'
           }
         }
       }
@@ -81,11 +50,7 @@ pipeline {
          * Multiline strings can be used for larger scripts. It is also possible to put scripts in your shared library
          * and load them with 'libaryResource'
          */
-        sh """
-          docker build -t ${IMAGE} .
-          docker tag ${IMAGE} ${IMAGE}:${VERSION}
-          docker push ${IMAGE}:${VERSION}
-        """
+        echo 'Here we would push to test libaries'
       }
     }
   }
@@ -93,9 +58,7 @@ pipeline {
   post {
     failure {
       // notify users when the Pipeline fails
-      mail to: 'team@example.com',
-          subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-          body: "Something is wrong with ${env.BUILD_URL}"
+      echo 'We failed, we should email the team'
     }
   }
 }
