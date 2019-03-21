@@ -11,10 +11,6 @@ pipeline {
     timestamps()
   }
 
-  environment {
-    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
-    mytime = 11
-  }
 
   stages {
     stage('Build') {
